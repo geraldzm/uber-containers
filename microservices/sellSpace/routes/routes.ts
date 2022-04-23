@@ -1,6 +1,5 @@
 import express = require('express');
-// import { Logger } from '../common';
-import { consultrouter } from './testrouter';
+import { spacesrouter } from './spacesrouter';
 
 class Routes {
 
@@ -22,8 +21,7 @@ class Routes {
     }
 
     private routes(): void {
-        this.express.use('/test', consultrouter);
-        // this.logger.info("route loaded");
+        this.express.use('/spaces', spacesrouter);
     }
 }
 

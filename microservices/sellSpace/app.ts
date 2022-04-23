@@ -24,7 +24,7 @@ class App {
         this.express.use('/api', Routes);
 
         this.express.use('*', (req,res) => {
-            res.send("Request invalido");
+            res.send("Invalid request");
         });
     }
 }

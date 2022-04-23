@@ -1,1 +1,1 @@
-export { TestController } from './testController'
+export { SpacesController } from './spacesController'
