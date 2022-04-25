@@ -6,8 +6,21 @@ const controller = SpacesController.getInstance();
 
 app.get("/getAvailableSpaces", (req:any, res:any, next:any) => {
 
-    controller.getAllSpacesByCountry(req.query['country'])
+    controller.getAllSpacesByCountry(req.query['country'], req.query['destinationCountry'])
     .then((data : any) => {
+        res.json(data);
+    })
+    .catch((err: any)=>{
+        console.error(err);
+        res.sendStatus(500); // internal error
+    });
+
+});
+
+app.post("/buySpace", (req:any, res:any, next:any) => {
+
+    controller.buySpace(req.body['containerId'], req.body['sellInformation'])
+    .then((data) => {
         res.json(data);
     })
     .catch((err: any)=>{

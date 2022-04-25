@@ -15,5 +15,20 @@ const containerModel = {
     zADim: {type: Number}
 }
 
+const orderModel = {
+    userId: {type: String},
+    containerId: {type: String},
 
-export default containerModel;
+    orgCountry: {type: String},
+    destCountry: {type: String},
+    created: {type:  Date, default: new Date()},
+
+    xDim: {type: Number},
+    yDim: {type: Number},
+    zDim: {type: Number},
+
+    price: {type: Number}
+}
+
+
+export { containerModel, orderModel };
