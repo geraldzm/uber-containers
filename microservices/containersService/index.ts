@@ -1,7 +1,7 @@
 import App from './app';
 import * as  http from 'http';
-import * as redis from 'redis';
 import { createClient } from 'redis';
+import { containerModel, orderModel } from './model/models';
 const mongoose = require('mongoose');
 
 require('dotenv').config();
@@ -25,6 +25,8 @@ mongoose.connect(process.env.MONGO_CONNECTION)
 
         // save mongo conneciton 
         App.locals.mongo = mongoose;
+        App.locals.containerModel = mongoose.model('containers', containerModel);
+        App.locals.orderModel = mongoose.model('orders', orderModel);
 
         // save redis conneciton 
         App.locals.redis = redisClient;
