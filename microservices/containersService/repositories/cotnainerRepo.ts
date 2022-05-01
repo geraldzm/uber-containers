@@ -14,7 +14,8 @@ export class ContainerRepo {
             return app.locals.containerModel
             .find({country: country, destCountry: destCountry} )
             .then( (arr: any) => {
-                    app.locals.redis
+                
+                app.locals.redis
                     .set(key, JSON.stringify(arr), { EX:10 });
 
                     return arr;

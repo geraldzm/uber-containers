@@ -11,8 +11,11 @@ console.log(`redis connection ${process.env.REDIS_CONNECTION}`);
 
 
 // create mongo connection
-mongoose.connect(process.env.MONGO_CONNECTION)
-.then(() => {
+mongoose.createConnection(process.env.MONGO_CONNECTION).asPromise()
+.then((c:any) =>{
+
+    App.locals.actlDB = c.useDb("actul");
+    App.locals.orderDB = c.useDb("order");
     
     // create redis connection
     const redisClient = createClient({
@@ -20,13 +23,11 @@ mongoose.connect(process.env.MONGO_CONNECTION)
     });
     redisClient.on('error', (err) => console.log('Redis Client Error', err));
 
-
     redisClient.connect().then(() => {
 
         // save mongo conneciton 
-        App.locals.mongo = mongoose;
-        App.locals.containerModel = mongoose.model('containers', containerModel);
-        App.locals.orderModel = mongoose.model('orders', orderModel);
+        App.locals.containerModel = App.locals.actlDB.model('containers', containerModel);
+        App.locals.orderModel = App.locals.orderDB.model('orders', orderModel);
 
         // save redis conneciton 
         App.locals.redis = redisClient;
