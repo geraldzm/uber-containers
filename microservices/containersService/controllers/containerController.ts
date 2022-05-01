@@ -25,6 +25,14 @@ export class ContainerController {
     return new Promise((rs, rj) => rj("no country provided"));
   }
 
+  public getOrdersByUserId(userId:string): Promise<any> {
+    return this.rep.getOrdersByUserId(userId);
+  }
+  
+  public getOrderById(orderId:string): Promise<any> {
+    return this.rep.getOrdersById(orderId);
+  }
+
   public createContainers(containers: any[]): Promise<any> {
     return this.rep.createContainers(containers);
   }

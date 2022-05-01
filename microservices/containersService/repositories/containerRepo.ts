@@ -24,6 +24,57 @@ export class ContainerRepo {
 
     }
 
+    public getOrdersByUserId(userId:string): Promise<any> {
+        
+        const key = 'getOrdersByUserId'+userId;
+
+        return app.locals.redis.get(key)
+        .then((value: any) => {
+        
+            if( value ) return JSON.parse(value);
+
+            return app.locals.orderModel
+            .find({userId: userId})
+            .then( (arr: any) => {
+                app.locals.redis
+                .set(key, JSON.stringify(arr), { EX:10 });
+
+                return arr;
+            });
+        });
+    }
+
+    public getOrdersById(orderId:string): Promise<any> {
+        
+        const key = 'getOrdersById'+orderId;
+
+        return app.locals.redis.get(key)
+        .then((value: any) => {
+        
+            if( value ) return JSON.parse(value);
+
+            // find order 
+            return app.locals.orderModel
+            .findById(orderId)
+            .then( (order: any) => 
+
+                // find history of the order
+                app.locals.orderHistoryModel
+                .find({orderId:orderId})
+                .then((arrH: any) => {
+                    
+                    const rs = {...(order._doc), history:arrH}; // insert history in the order
+                    
+                    // save in cache
+                    app.locals.redis
+                    .set(key, JSON.stringify(rs), { EX:10 });
+
+                    return rs;
+                }));
+        });
+
+    }
+
     public createContainers(containers:any[]): Promise<any> {
 
         const containersModel:any[] = [];
@@ -108,6 +159,8 @@ export class ContainerRepo {
             .then(() => this.createOrder(container, userId, dimensions, volum, kg)
                 .then((order:any) => {
                     this.createOrderHistory(order._id, "created", container.currentCountry);
+
+                    return order;
                 })
             );
         });

@@ -17,6 +17,32 @@ app.get("/getAvailableSpaces", (req:any, res:any, next:any) => {
 
 });
 
+app.get("/getOrdersByUserId", (req:any, res:any, next:any) => {
+
+    controller.getOrdersByUserId(req.query['userId'])
+    .then((data : any) => {
+        res.json(data);
+    })
+    .catch((err: any)=>{
+        console.error(err);
+        res.sendStatus(500); // internal error
+    });
+
+});
+
+app.get("/getOrderById", (req:any, res:any, next:any) => {
+
+    controller.getOrderById(req.query['orderId'])
+    .then((data : any) => {
+        res.json(data);
+    })
+    .catch((err: any)=>{
+        console.error(err);
+        res.sendStatus(500); // internal error
+    });
+
+});
+
 app.post("/buySpace", (req:any, res:any, next:any) => {
 
     controller.buySpace(req.body['containerId'], req.body['sellInformation'])
