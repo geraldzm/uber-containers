@@ -1,6 +1,6 @@
 
 const containerModel = {
-    country: {type: String, required: true},
+    currentCountry: {type: String, required: true},
     destCountry: {type: String, required: true},
     created: {type:  Date, default: new Date()},
 
@@ -14,12 +14,11 @@ const containerModel = {
     // --------------------------
 
     // avalilable dimentions
-    totalBoxes: {type: Number, required: true},
-    avalBoxes: {type: Number, required: true},
-
-    xBoxDim: {type: Number, required: true},
-    yBoxDim: {type: Number, required: true},
-    zBoxDim: {type: Number, required: true},
+    totalVolum: {type: Number, required: true},
+    avalVolum: {type: Number, required: true},
+   
+    totalKg: {type: Number, default: 1000 },
+    avalKg: {type: Number, default: 1000 },
 }
 
 const orderModel = {
@@ -31,15 +30,25 @@ const orderModel = {
     destCountry: {type: String, required: true},
     created: {type:  Date, default: new Date()},
 
-    status: {type: String, default:'waiting for departure'},
     currentCountry: {type: String, required: true},
 
     xDim: {type: Number, required: true},
     yDim: {type: Number, required: true},
     zDim: {type: Number, required: true},
 
+    volume: {type: Number, required: true},
+    kg: {type: Number, required: true },
+
     price: {type: Number, required: true}
 }
 
+const orderHistoryModel = {
+    orderId: {type: String, required: true },
 
-export { containerModel, orderModel };
+    created: {type:  Date, default: new Date()},
+    status: {type: String, required: true },
+
+    currentCountry : {type:  String, required: true },
+}
+
+export { containerModel, orderModel, orderHistoryModel };

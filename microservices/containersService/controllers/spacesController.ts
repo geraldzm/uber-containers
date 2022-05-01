@@ -35,10 +35,11 @@ export class ContainerController {
         !containerId ||
         !sellInformation.userId ||
         !sellInformation.dimensions ||
+        !sellInformation.kg ||
         sellInformation.dimensions.length != 3
       )
         throw new Error("no container found");
 
-    return this.rep.buySpace(containerId, sellInformation.userId, sellInformation.dimensions);
+    return this.rep.buySpace(containerId, sellInformation.userId, sellInformation.dimensions, sellInformation.kg);
   }
 }

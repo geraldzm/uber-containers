@@ -1,7 +1,7 @@
 import App from './app';
 import * as  http from 'http';
 import { createClient } from 'redis';
-import { containerModel, orderModel } from './model/models';
+import { containerModel, orderModel, orderHistoryModel } from './model/models';
 const mongoose = require('mongoose');
 
 require('dotenv').config();
@@ -27,7 +27,8 @@ mongoose.createConnection(process.env.MONGO_CONNECTION).asPromise()
 
         // save mongo conneciton 
         App.locals.containerModel = App.locals.actlDB.model('containers', containerModel);
-        App.locals.orderModel = App.locals.orderDB.model('orders', orderModel);
+        App.locals.orderModel = App.locals.actlDB.model('orders', orderModel);
+        App.locals.orderHistoryModel = App.locals.actlDB.model('orderHistory', orderHistoryModel);
 
         // save redis conneciton 
         App.locals.redis = redisClient;

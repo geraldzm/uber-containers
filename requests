@@ -1,0 +1,83 @@
+ ################################  containersService ################################ 
+GET containers by origin destination 
+
+localhost:5000/api/spaces/getAvailableSpaces?country=italy&destinationCountry=china
+
+
+
+POST create containers
+
+- localhost:5000/api/spaces/createContainers
+- 
+{
+    "containers": [
+        {
+            "currentCountry": "spain",
+            "destCountry": "china",
+            "shipId": 1,
+            "xDim": 500,
+            "yDim": 500,
+            "zDim": 400,
+            "maxKg": 1000
+        },
+        {
+            "currentCountry": "italy",
+            "destCountry": "china",
+            "shipId": 2,
+            "xDim": 500,
+            "yDim": 500,
+            "zDim": 400,
+            "maxKg": 500
+        },
+        {
+            "currentCountry": "italy",
+            "destCountry": "china",
+            "shipId": 3,
+            "xDim": 500,
+            "yDim": 500,
+            "zDim": 100,
+            "maxKg": 1000
+        },
+        {
+            "currentCountry": "italy",
+            "destCountry": "china",
+            "shipId": 3,
+            "xDim": 800,
+            "yDim": 800,
+            "zDim": 800,
+            "maxKg": 1000
+        }
+    ]
+}
+
+
+
+POST buy space
+
+- localhost:5000/api/spaces/buySpace
+-
+{
+    "containerId": "626ec485cdccba27c808e14c",
+    "sellInformation": {
+        "userId": "gerald2",
+        "kg": 10,        
+        "dimensions": [20, 10, 5]
+    }
+}
+
+
+ ################################  shipService ################################ 
+
+
+POST update ship status
+- localhost:5001/api/ship/status
+-
+{
+    "shipId": "4",
+    "status": "departued",
+    "currentCountry": "china"
+}
+
+
+
+
