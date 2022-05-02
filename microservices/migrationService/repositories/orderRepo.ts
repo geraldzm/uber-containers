@@ -1,26 +1,53 @@
 import app from "../app";
-import { orderModel, orderHistoryModel } from '../model/models'
+var _ = require('lodash');
 
 export class OrderRepo {
 
-    /*
-    Entonces el consumer lo recibe y hace un insert en la base de datos de orders con el nuevo pais,
-    asi se mueve geograficamente gracias al sharding por tags.
-
-    Tambien inserta en la base de datos de actualizaciones.
-
-    Por shipId, traigo todos los Order
-    foreach itera en orders (currentOrder) y trae todos los orderHistory relacionados a ese currentOrder
-    El producer crea el modelo UserHistory
-    */
-    public saveUpdatedOrder(shipId: string) : Promise<any> {
-        const ordersByShip = app.locals.orderModel().find({shipId: shipId});
-        ordersByShip.forEach((order : any) => {
-            const orderHistoriesByOrder = app.locals.orderHistoryModel().find({orderId: order._id});
-            
+    public saveUpdatedOrders(pOrderIds : string[]) {
+        pOrderIds.forEach((i_orderId)=> {
+            //Iterates over all orderIds given from producer and find the orders related to that orderId.
+            app.locals.orderModel.findById(i_orderId)
+            .then((order : any) => {
+                if(order) this.migrateOrder(order);
+            }).catch((err : any) => {
+                console.log("Inside OrderRepo, finding order by Id:\n" + err)
+            });
+            //Find all histories related with the actual orderId
+            app.locals.orderHistoryModel.find({orderId : i_orderId})
+            .then((histories : any) => {
+                this.migrateHistories(histories);
+            }).catch((err : any) => {
+                console.log("Inside OrderRepo, finding histories by orderId:\n" + err)
+            });
         });
     }
 
+    private migrateOrder(pOrder : any){
+        //deletes the order from the prev country and insert it in the new one using the sharding
+        pOrder.remove(async (err : any, removedOrder : any) => {
+            if(err) console.log(err);
+            else {
+                const newOrder = await new app.locals.orderModel({ ...pOrder._doc }).save();
+                //checks if save is successful (if we have data lost)
+                if(_.isEqual(newOrder, removedOrder)) console.log("Data is lost on: " + removedOrder);
+            }
+        });
+    }
 
-
+    private migrateHistories(pHistories: any) {
+        //Iterates over all histories link to the current order
+        pHistories.forEach((history : any) => {
+            //Remove the history and call back save in the new sharding when done
+            history.remove(async (err : any, removedHistory : any) => {
+                if(err) console.log(err);
+                else {
+                    const newHistory = await new app.locals.orderHistoryModel({ ...history._doc }).save();
+                    //checks if save is successful (if we have data lost)
+                    if(_.isEqual(newHistory, removedHistory)) console.log("Data is lost on: " + removedHistory);
+                }
+            });
+        });
+    }
 }
+
+

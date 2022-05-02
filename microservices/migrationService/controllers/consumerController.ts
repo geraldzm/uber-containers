@@ -1,6 +1,6 @@
 import { Kafka } from 'kafkajs';
 import { OrderRepo } from '../repositories';
-import app from '../app';
+
 
 const url = 'mongodb://25.5.185.77:27017';
 
@@ -13,10 +13,10 @@ class KafkaOrderConsumer{
     
     private constructor(){
         this.kafka = new Kafka({
-            mongoClientId: 'my-app',
+            clientId: 'my-app',
             brokers: ['localhost:9092']
-        } as any);
-        this.topicName = 'orderCreated';
+        });
+        this.topicName = 'orderMigration';
         this.consumerNumber = process.argv[2] || '1';
     }
 
@@ -30,31 +30,35 @@ class KafkaOrderConsumer{
 
     public async listenConsumer(){
         const kafkaOrderConsumer = this.kafka.consumer({groupId: 'orders'});
-        await Promise.all([
-            kafkaOrderConsumer.connect()
-        ]);
 
-        await Promise.all([
-            await kafkaOrderConsumer.subscribe({ topic: this.topicName }),
-        ]);
-
-        let orderCounter = 1;
-        await kafkaOrderConsumer.run({
-            eachMessage: async ({ topic, partition, message } : any) => {
-                this.logConsumerMessage(orderCounter, `kafkaOrderConsumer#${this.consumerNumber}`, topic, partition, message);
-                orderCounter++;
-                //migrate data with new Country
-
-                //new app.locals.orderHistoryModel(JSON.parse(message.value.toString())).save();
-                /*
-                Testear pasar 1 order de Italy a Spain en el cluster
-                */
-
+        kafkaOrderConsumer.connect()
+        .then(() => {
+            console.log("Kafka connected");
+            kafkaOrderConsumer.subscribe({ topic: this.topicName }).then(()=>{
+                console.log("subscribed");
+                let orderCounter = 1;
                 const orderRepo = new OrderRepo();
-                //message => model
-                orderRepo.saveUpdatedOrder()
-            },
-        });  
+                kafkaOrderConsumer.run({
+                    eachMessage: async ({ topic, partition, message } : any) => {
+                        this.logConsumerMessage(orderCounter, `kafkaOrderConsumer#${this.consumerNumber}`, topic, partition, message);
+                        orderCounter++;
+                        //migrate data with new Country                
+                        //Testear pasar 1 order de Italy a Spain en el cluster
+                        const data : string[] =  JSON.parse(message.value.toString());
+                        orderRepo.saveUpdatedOrders(data);
+                    },
+                });  
+            }).catch((err) => {
+                console.log(err);
+                
+
+            })
+        })
+        .catch((err) => {
+            console.log(err);
+            
+        });
+
     }
 
     private logConsumerMessage(counter : any, consumerName : any, topic : any, partition : any, message : any) {

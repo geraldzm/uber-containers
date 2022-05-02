@@ -21,7 +21,7 @@ class App {
     }
 
     private listen(): void {
-        console.log("Consume is listening...");
+        console.log("Consumer is listening...");
         const consumer = KafkaOrderConsumer.getInstance();
         consumer.listenConsumer();
     }
