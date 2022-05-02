@@ -1,7 +1,6 @@
 import express = require('express');
-import { KafkaOrderConsumer } from './controllers/consumerController';
-const morgan = require('morgan');
-
+import { ConsumerController } from './controllers/consumerController';
+import morgan from 'morgan';
 
 class App {
 
@@ -22,7 +21,7 @@ class App {
 
     private listen(): void {
         console.log("Consumer is listening...");
-        const consumer = KafkaOrderConsumer.getInstance();
+        const consumer = ConsumerController.getInstance();
         consumer.listenConsumer();
     }
 }

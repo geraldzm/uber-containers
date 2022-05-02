@@ -1,1 +1,1 @@
-export { KafkaOrderConsumer } from './consumerController'
+export { ConsumerController } from './consumerController'

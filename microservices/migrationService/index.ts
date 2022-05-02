@@ -1,13 +1,16 @@
 import App from './app';
 import * as  http from 'http';
 import { orderModel, orderHistoryModel } from './model/models';
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 require('dotenv').config();
 
 // create mongo connection
-mongoose.createConnection(process.env.MONGO_CONNECTION).asPromise()
+const uri = process.env.MONGO_PREFIX_URI as string + 
+            process.env.MONGO_ROUTER1 as string + "," + 
+            process.env.MONGO_ROUTER2 as string;
+mongoose.createConnection(uri).asPromise()
 .then((c:any) =>{
-    console.log(`mongo connection ${process.env.MONGO_CONNECTION}`);
+    console.log(`mongo connection ${uri}`);
     App.locals.actlDB = c.useDb("actul");
     // save mongo conneciton 
     App.locals.orderModel = App.locals.actlDB.model('orders', orderModel);

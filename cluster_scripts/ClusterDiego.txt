@@ -1,0 +1,75 @@
+-- gerald ip = 25.1.213.132
+-- niko ip = 25.4.55.235
+-- diego ip = 25.5.185.77
+
+Crear Volumen :
+docker volume create vol_china1
+docker volume create vol_spain2
+
+Crear Servidor Principal del pais que le toca :
+docker run -d -p 27201:27017 -v vol_china1:/data/db --name china1 mongo mongod --port 27017 --bind_ip_all --shardsvr --replSet "repchina" --dbpath /data/db
+
+Secundario, del pais que le toca replicar
+docker run -d -p 27101:27017 -v vol_spain2:/data/db --name spain2 mongo mongod --port 27017 --bind_ip_all --shardsvr --replSet "repspain" --dbpath /data/db
+
+Iniciar ReplicaSet :
+
+docker exec -it china1 mongo
+
+rs.initiate(
+  {
+    _id: "repchina",
+    members: [
+      { _id : 0, host : "25.5.185.77:27201"},
+      { _id : 1, host : "25.4.55.235:27201"}
+    ]
+  }
+);
+
+cfg = rs.conf();
+cfg.members[0].priority = 2;
+cfg.members[1].priority = 0.5;
+rs.reconfig(cfg);
+
+
+Crear Árbitro :
+docker run -d -p 37201:27017 --name arbchina mongo mongod --port 27017 --replSet "repchina"
+
+Añadir árbitro dentro del servidor principal :
+
+docker exec -it china1 mongo
+
+rs.addArb("25.5.185.77:37201");
+
+---------------------------Create Config-------------------------------------
+Crear Volumen :
+docker volume create vol_cfg1
+
+Crear container de configuracion :
+docker run -d -p 47001:27017 -v vol_cfg1:/data/configdb --name cfg1 mongo mongod --port 27017 --bind_ip_all --configsvr --replSet "repcfg" --dbpath /data/configdb
+
+docker exec -it cfg1 mongo
+
+configsvr: true
+
+rs.initiate(
+  {
+    _id: "repcfg",
+    members: [
+      { _id : 0, host : "25.5.185.77:47001" },
+      { _id : 1, host : "25.4.55.235:47001" }
+    ]
+  }
+);
+
+cfg = rs.conf();
+cfg.members[0].priority = 2;
+cfg.members[1].priority = 0.5;
+rs.reconfig(cfg);
+
+Router:
+docker run -d -p 47003:27017 --name router2 mongo mongos --port 27017 --configdb repcfg/25.4.55.235:47001,25.5.185.77:47001 --bind_ip_all
+
+docker exec -it router2 mongo
+
+sh.status()
