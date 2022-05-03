@@ -6,14 +6,14 @@ export class OrderRepo {
     public saveUpdatedOrders(pOrderIds : string[], pArrivalCountry : string) {
         pOrderIds.forEach((i_orderId)=> {
             //Iterates over all orderIds given from producer and find the orders related to that orderId.
-            app.locals.orderModel.findById(i_orderId)
+            app.locals.orderModel.findById(i_orderId, null , { readConcern: { level: "available" } })
             .then((order : any) => {
                 if(order) this.migrateOrder(order, pArrivalCountry);
             }).catch((pError : any) => {
                 console.log("Inside OrderRepo, finding order by Id:\n" + pError)
             });
             //Find all histories related with the actual orderId
-            app.locals.orderHistoryModel.find({orderId : i_orderId})
+            app.locals.orderHistoryModel.find({orderId : i_orderId}, null , { readConcern: { level: "available" } })
             .then((histories : any) => {
                 this.migrateHistories(histories, pArrivalCountry);
             }).catch((pError : any) => {
@@ -28,7 +28,9 @@ export class OrderRepo {
             if(err) console.log(err);
             else {
                 pOrder.currentCountry = pArrivalCountry;
-                const newOrder = await new app.locals.orderModel({ ...pOrder._doc }).save();
+                new app.locals.anotherorderModel({ ...pOrder._doc }).save({ writeConcern:{w:1, wtimeout: 5000} });
+                const newOrder = await new app.locals.orderModel({ ...pOrder._doc }).save({ writeConcern:{w:1, wtimeout: 5000} });
+                
                 //checks if save is successful (if we have data lost)
                 if(_.isEqual(newOrder, removedOrder)) console.log("Data is lost on: " + removedOrder);
             }
@@ -43,11 +45,13 @@ export class OrderRepo {
                 if(err) console.log(err);
                 else {
                     history.currentCountry = pArrivalCountry;
-                    const newHistory = await new app.locals.orderHistoryModel({ ...history._doc }).save();
+                    new app.locals.anotherorderHistoryModel({ ...history._doc }).save({ writeConcern:{w:1, wtimeout: 5000}} );
+                    const newHistory = await new app.locals.orderHistoryModel({ ...history._doc }).save({ writeConcern:{w:1, wtimeout: 5000}} );
                     //checks if save is successful (if we have data lost)
                     if(_.isEqual(newHistory, removedHistory)) console.log("Data is lost on: " + removedHistory);
                 }
             });
         });
     }
+
 }

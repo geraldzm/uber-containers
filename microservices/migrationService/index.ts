@@ -12,9 +12,14 @@ mongoose.createConnection(uri).asPromise()
 .then((c:any) =>{
     console.log(`mongo connection ${uri}`);
     App.locals.actlDB = c.useDb("actul");
+    
     // save mongo conneciton 
     App.locals.orderModel = App.locals.actlDB.model('orders', orderModel);
     App.locals.orderHistoryModel = App.locals.actlDB.model('orderhistories', orderHistoryModel);
+
+    App.locals.orderDB = c.useDb("order");
+    App.locals.anotherorderModel = App.locals.orderDB.model('orders', orderModel);
+    App.locals.anotherorderHistoryModel = App.locals.orderDB.model('orderhistories', orderHistoryModel);
 
     App.set('port', process.env.PORT);
     const server = http.createServer(App);

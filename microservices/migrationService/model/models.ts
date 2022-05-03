@@ -1,5 +1,6 @@
 const containerModel = {
     currentCountry: {type: String, required: true},
+    orgCountry: {type: String, required: true},
     destCountry: {type: String, required: true},
     created: {type:  Date, default: new Date()},
 
@@ -15,6 +16,8 @@ const containerModel = {
     // avalilable dimentions
     totalVolum: {type: Number, required: true},
     avalVolum: {type: Number, required: true},
+
+    departured: {type: Boolean, default: false},
 
     totalKg: {type: Number, default: 1000 },
     avalKg: {type: Number, default: 1000 },

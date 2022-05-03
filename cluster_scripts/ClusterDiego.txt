@@ -27,7 +27,7 @@ rs.initiate(
 );
 
 cfg = rs.conf();
-cfg.members[0].priority = 2;
+cfg.members[0].priority = 0.5;
 cfg.members[1].priority = 0.5;
 rs.reconfig(cfg);
 
@@ -57,7 +57,7 @@ rs.initiate(
     _id: "repcfg",
     members: [
       { _id : 0, host : "25.5.185.77:47001" },
-      { _id : 1, host : "25.4.55.235:47001" }
+      { _id : 1, host : "25.1.213.132:47001" }
     ]
   }
 );
@@ -67,9 +67,23 @@ cfg.members[0].priority = 2;
 cfg.members[1].priority = 0.5;
 rs.reconfig(cfg);
 
+--------------------------Create Routers-------------------------------------
 Router:
-docker run -d -p 47003:27017 --name router2 mongo mongos --port 27017 --configdb repcfg/25.4.55.235:47001,25.5.185.77:47001 --bind_ip_all
+docker run -d -p 47003:27017 --name router1 mongo mongos --port 27017 --configdb repcfg/25.5.185.77:47001,25.1.213.132:47001 --bind_ip_all
 
-docker exec -it router2 mongo
+docker exec -it router1 mongo
 
-sh.status()
+
+
+
+
+
+
+
+
+db.adminCommand({
+  "setDefaultRWConcern" : 1,
+  "defaultWriteConcern" : {
+    "w" : 1
+  }
+})
